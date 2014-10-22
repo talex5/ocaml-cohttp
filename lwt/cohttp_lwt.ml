@@ -336,6 +336,7 @@ module Make_server(IO:Cohttp.S.IO with type 'a t = 'a Lwt.t)
           then return None
           else
             Lwt_mutex.lock read_m >>= fun () ->
+            Profile.label "cohttp:read";
             Request.read ic >>= function
             | `Eof | `Invalid _ -> (* TODO: request logger for invalid req *)
               Lwt_mutex.unlock read_m;
@@ -371,6 +372,7 @@ module Make_server(IO:Cohttp.S.IO with type 'a t = 'a Lwt.t)
        * the user callback *)
       Lwt_stream.on_terminate res_stream (spec.conn_closed (io_id,conn_id));
       (* Transmit the responses *)
+      Profile.label "cohttp:respond";
       for_lwt (res,body) in res_stream do
         let flush =
           if Response.flush res then

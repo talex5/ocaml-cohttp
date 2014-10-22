@@ -42,7 +42,7 @@ Library cohttp_lwt
   Path:          lwt
   Findlibname:   lwt-core
   FindlibParent: cohttp
-  BuildDepends:  lwt, uri, cohttp, lwt.syntax
+  BuildDepends:  lwt, uri, cohttp, lwt.syntax, mirage-profile
   XMETARequires: lwt, uri, cohttp
   Modules:       Cohttp_lwt_body, Cohttp_lwt
 

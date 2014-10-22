@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6a68de5a8e93930aada96f441bbdade5)
+# DO NOT EDIT (digest: cfc79c7f6a85f0c118bcf02eb907bdb4)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -52,6 +52,7 @@
 <lwt/*.ml{,i}>: pkg_lwt.ssl
 <lwt/*.ml{,i}>: pkg_lwt.syntax
 <lwt/*.ml{,i}>: pkg_lwt.unix
+<lwt/*.ml{,i}>: pkg_mirage-profile
 <lwt/*.ml{,i}>: pkg_re.emacs
 <lwt/*.ml{,i}>: pkg_sexplib
 <lwt/*.ml{,i}>: pkg_sexplib.syntax
@@ -69,6 +70,7 @@
 <js/*.ml{,i}>: pkg_js_of_ocaml.syntax
 <js/*.ml{,i}>: pkg_lwt
 <js/*.ml{,i}>: pkg_lwt.syntax
+<js/*.ml{,i}>: pkg_mirage-profile
 <js/*.ml{,i}>: pkg_re.emacs
 <js/*.ml{,i}>: pkg_sexplib
 <js/*.ml{,i}>: pkg_sexplib.syntax
@@ -99,6 +101,7 @@
 <lib_test/test_parser.{native,byte}>: pkg_lwt.ssl
 <lib_test/test_parser.{native,byte}>: pkg_lwt.syntax
 <lib_test/test_parser.{native,byte}>: pkg_lwt.unix
+<lib_test/test_parser.{native,byte}>: pkg_mirage-profile
 <lib_test/test_parser.{native,byte}>: pkg_oUnit
 <lib_test/test_parser.{native,byte}>: pkg_re.emacs
 <lib_test/test_parser.{native,byte}>: pkg_sexplib
@@ -143,6 +146,7 @@
 <lib_test/test_net_lwt.{native,byte}>: pkg_lwt.ssl
 <lib_test/test_net_lwt.{native,byte}>: pkg_lwt.syntax
 <lib_test/test_net_lwt.{native,byte}>: pkg_lwt.unix
+<lib_test/test_net_lwt.{native,byte}>: pkg_mirage-profile
 <lib_test/test_net_lwt.{native,byte}>: pkg_oUnit
 <lib_test/test_net_lwt.{native,byte}>: pkg_re.emacs
 <lib_test/test_net_lwt.{native,byte}>: pkg_sexplib
@@ -163,6 +167,7 @@
 <lib_test/test_net_lwt_google.{native,byte}>: pkg_lwt.ssl
 <lib_test/test_net_lwt_google.{native,byte}>: pkg_lwt.syntax
 <lib_test/test_net_lwt_google.{native,byte}>: pkg_lwt.unix
+<lib_test/test_net_lwt_google.{native,byte}>: pkg_mirage-profile
 <lib_test/test_net_lwt_google.{native,byte}>: pkg_re.emacs
 <lib_test/test_net_lwt_google.{native,byte}>: pkg_sexplib
 <lib_test/test_net_lwt_google.{native,byte}>: pkg_sexplib.syntax
@@ -182,6 +187,7 @@
 <lib_test/test_net_lwt_lastminute.{native,byte}>: pkg_lwt.ssl
 <lib_test/test_net_lwt_lastminute.{native,byte}>: pkg_lwt.syntax
 <lib_test/test_net_lwt_lastminute.{native,byte}>: pkg_lwt.unix
+<lib_test/test_net_lwt_lastminute.{native,byte}>: pkg_mirage-profile
 <lib_test/test_net_lwt_lastminute.{native,byte}>: pkg_re.emacs
 <lib_test/test_net_lwt_lastminute.{native,byte}>: pkg_sexplib
 <lib_test/test_net_lwt_lastminute.{native,byte}>: pkg_sexplib.syntax
@@ -201,6 +207,7 @@
 <lib_test/test_net_lwt_server.{native,byte}>: pkg_lwt.ssl
 <lib_test/test_net_lwt_server.{native,byte}>: pkg_lwt.syntax
 <lib_test/test_net_lwt_server.{native,byte}>: pkg_lwt.unix
+<lib_test/test_net_lwt_server.{native,byte}>: pkg_mirage-profile
 <lib_test/test_net_lwt_server.{native,byte}>: pkg_re.emacs
 <lib_test/test_net_lwt_server.{native,byte}>: pkg_sexplib
 <lib_test/test_net_lwt_server.{native,byte}>: pkg_sexplib.syntax
@@ -220,6 +227,7 @@
 <lib_test/test_net_lwt_multi_get.{native,byte}>: pkg_lwt.ssl
 <lib_test/test_net_lwt_multi_get.{native,byte}>: pkg_lwt.syntax
 <lib_test/test_net_lwt_multi_get.{native,byte}>: pkg_lwt.unix
+<lib_test/test_net_lwt_multi_get.{native,byte}>: pkg_mirage-profile
 <lib_test/test_net_lwt_multi_get.{native,byte}>: pkg_re.emacs
 <lib_test/test_net_lwt_multi_get.{native,byte}>: pkg_sexplib
 <lib_test/test_net_lwt_multi_get.{native,byte}>: pkg_sexplib.syntax
@@ -239,6 +247,7 @@
 <lib_test/test_net_lwt_client_and_server.{native,byte}>: pkg_lwt.ssl
 <lib_test/test_net_lwt_client_and_server.{native,byte}>: pkg_lwt.syntax
 <lib_test/test_net_lwt_client_and_server.{native,byte}>: pkg_lwt.unix
+<lib_test/test_net_lwt_client_and_server.{native,byte}>: pkg_mirage-profile
 <lib_test/test_net_lwt_client_and_server.{native,byte}>: pkg_re.emacs
 <lib_test/test_net_lwt_client_and_server.{native,byte}>: pkg_sexplib
 <lib_test/test_net_lwt_client_and_server.{native,byte}>: pkg_sexplib.syntax
@@ -351,6 +360,7 @@
 <bin/cohttp_server_lwt.{native,byte}>: pkg_lwt.ssl
 <bin/cohttp_server_lwt.{native,byte}>: pkg_lwt.syntax
 <bin/cohttp_server_lwt.{native,byte}>: pkg_lwt.unix
+<bin/cohttp_server_lwt.{native,byte}>: pkg_mirage-profile
 <bin/cohttp_server_lwt.{native,byte}>: pkg_re.emacs
 <bin/cohttp_server_lwt.{native,byte}>: pkg_sexplib
 <bin/cohttp_server_lwt.{native,byte}>: pkg_sexplib.syntax
@@ -368,6 +378,7 @@
 <bin/*.ml{,i}>: pkg_lwt.ssl
 <bin/*.ml{,i}>: pkg_lwt.syntax
 <bin/*.ml{,i}>: pkg_lwt.unix
+<bin/*.ml{,i}>: pkg_mirage-profile
 <bin/*.ml{,i}>: pkg_re.emacs
 <bin/*.ml{,i}>: pkg_sexplib
 <bin/*.ml{,i}>: pkg_sexplib.syntax
@@ -414,6 +425,7 @@
 "lib_test/test_xhr.byte": pkg_js_of_ocaml.syntax
 "lib_test/test_xhr.byte": pkg_lwt
 "lib_test/test_xhr.byte": pkg_lwt.syntax
+"lib_test/test_xhr.byte": pkg_mirage-profile
 "lib_test/test_xhr.byte": pkg_re.emacs
 "lib_test/test_xhr.byte": pkg_sexplib
 "lib_test/test_xhr.byte": pkg_sexplib.syntax
@@ -429,6 +441,7 @@
 <lib_test/*.ml{,i}>: pkg_js_of_ocaml.syntax
 <lib_test/*.ml{,i}>: pkg_lwt
 <lib_test/*.ml{,i}>: pkg_lwt.syntax
+<lib_test/*.ml{,i}>: pkg_mirage-profile
 <lib_test/*.ml{,i}>: pkg_re.emacs
 <lib_test/*.ml{,i}>: pkg_sexplib
 <lib_test/*.ml{,i}>: pkg_sexplib.syntax
