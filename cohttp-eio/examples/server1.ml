@@ -30,17 +30,18 @@ let text =
 
 open Cohttp_eio
 
-let app (req, _reader) =
-  match Http.Request.resource req with
+let app req =
+  match Request.resource req with
   | "/" -> Server.text_response text
   | "/html" -> Server.html_response text
   | _ -> Server.not_found_response
 
 let () =
+  Logs.(set_level (Some Info));
+  Logs.set_reporter (Logs_fmt.reporter ());
   let port = ref 8080 in
   Arg.parse
     [ ("-p", Arg.Set_int port, " Listening port number(8080 by default)") ]
     ignore "An HTTP/1.1 server";
 
-  Eio_main.run @@ fun env ->
-  Eio.Switch.run @@ fun sw -> Server.run ~port:!port env sw app
+  Eio_main.run @@ fun env -> Server.run ~port:!port env app
