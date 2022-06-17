@@ -1,3 +1,3 @@
 (executable
  (name server1)
- (libraries cohttp-eio uri eio_main))
+ (libraries cohttp-eio uri eio_main logs.fmt))

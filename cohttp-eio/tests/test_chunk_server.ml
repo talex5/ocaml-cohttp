@@ -25,4 +25,4 @@ let () =
     ignore "An HTTP/1.1 server";
 
   Eio_main.run @@ fun env ->
-  Eio.Switch.run @@ fun sw -> run ~port:!port env sw app
+  run ~port:!port env app

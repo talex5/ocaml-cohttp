@@ -84,9 +84,14 @@ let write_response (writer : Writer.t)
 
 (* main *)
 
-let rec handle_request reader writer flow handler =
+let rec handle_request client_addr reader writer flow handler =
   match Reader.http_request reader with
   | request ->
+      Log.info (fun f ->
+        f "%a: %a %s"
+          Eio.Net.Sockaddr.pp client_addr
+          Http.Method.pp request.meth
+          request.resource);
       let response, body = handler (request, reader) in
       write_response writer (response, body);
       (* A custom response needs to write the main response before calling
@@ -94,35 +99,40 @@ let rec handle_request reader writer flow handler =
          us if that is the case. *)
       if not (is_custom body) then Writer.wakeup writer;
       if Http.Request.is_keep_alive request then
-        handle_request reader writer flow handler
-      else Eio.Flow.close flow
-  | (exception End_of_file) | (exception Eio.Net.Connection_reset _) ->
-      Eio.Flow.close flow
-  | exception Failure _e ->
+        handle_request client_addr reader writer flow handler
+  | (exception End_of_file) | (exception Eio.Net.Connection_reset _) -> ()
+  | exception Failure msg ->
+      Log.info (fun f -> f "%a: bad request: %s" Eio.Net.Sockaddr.pp client_addr msg);
       write_response writer bad_request_response;
       Writer.wakeup writer;
-      Eio.Flow.close flow
-  | exception _ ->
+  | exception ex ->
       write_response writer internal_server_error_response;
       Writer.wakeup writer;
-      Eio.Flow.close flow
+      raise ex
+
+type connection_handler = sw:Eio.Switch.t -> <Eio.Flow.two_way; Eio.Flow.close> -> Eio.Net.Sockaddr.stream -> unit
+
+let connection_handler : handler -> connection_handler = fun handler ~sw flow client_addr ->
+  let reader = Eio.Buf_read.of_flow ~initial_size:0x1000 ~max_size:max_int flow in
+  let writer = Writer.create (flow :> Eio.Flow.sink) in
+  Eio.Fiber.fork ~sw (fun () -> Writer.run writer);
+  handle_request client_addr reader writer flow handler
+
+let log_connection_error ex =
+  Log.warn (fun f -> f "Error handling connection: %a" Fmt.exn ex)
 
 let run_domain ssock handler =
-  let on_error exn =
-    Printf.fprintf stderr "Error handling connection: %s\n%!"
-      (Printexc.to_string exn)
-  in
+  let handler = connection_handler handler in
   Switch.run (fun sw ->
-      while true do
-        Eio.Net.accept_sub ~sw ssock ~on_error
-          (fun ~sw flow _addr ->
-            let reader = Eio.Buf_read.of_flow ~initial_size:0x1000 ~max_size:max_int (flow :> Eio.Flow.source) in
-            let writer = Writer.create (flow :> Eio.Flow.sink) in
-            Eio.Fiber.fork ~sw (fun () -> Writer.run writer);
-            handle_request reader writer flow handler)
-      done)
+      let rec loop () =
+        Eio.Net.accept_sub ~sw ssock ~on_error:log_connection_error handler;
+        loop ()
+      in
+      loop ()
+    )
 
-let run ?(socket_backlog = 128) ?(domains = domain_count) ~port env sw handler =
+let run ?(socket_backlog = 128) ?(domains = domain_count) ~port env handler =
+  Switch.run @@ fun sw ->
   let domain_mgr = Eio.Stdenv.domain_mgr env in
   let ssock =
     Eio.Net.listen (Eio.Stdenv.net env) ~sw ~reuse_addr:true ~reuse_port:true

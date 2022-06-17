@@ -82,9 +82,14 @@ module Server : sig
     ?domains:int ->
     port:int ->
     Eio.Stdenv.t ->
-    Eio.Switch.t ->
     handler ->
-    unit
+    'a
+
+  type connection_handler = sw:Eio.Switch.t -> <Eio.Flow.two_way; Eio.Flow.close> -> Eio.Net.Sockaddr.stream -> unit
+  (** A function for handling a new client connection, suitable for passing to {!Eio.Net.accept_sub}. *)
+
+  val connection_handler : handler -> connection_handler
+  (** Makes a connection handler from a request handler. *)
 
   (** {1 Basic Handlers} *)
 

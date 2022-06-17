@@ -26,4 +26,4 @@ let app (req, reader) =
 
 let () =
   Eio_main.run @@ fun env ->
-  Eio.Switch.run @@ fun sw -> Server.run ~port:8080 env sw app
+  Server.run ~port:8080 env app
