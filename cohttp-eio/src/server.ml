@@ -1,5 +1,7 @@
 open Eio.Std
 
+let log_src = Log.src
+
 type middleware = handler -> handler
 and handler = request -> response
 and request = Http.Request.t * Eio.Buf_read.t
