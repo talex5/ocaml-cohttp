@@ -105,13 +105,13 @@ Streaming a response: XXX should do two writes here!
 +socket: read "GET /stream HTTP/1.1\r\n"
 +             "\r\n"
 ocaml-mdx-test: [INFO] unix:test-socket: GET /stream
-+Resuming...
 +socket: wrote "HTTP/1.1 200 OK\r\n"
 +              "transfer-encoding: chunked\r\n"
 +              "\r\n"
 +              "5\r\n"
 +              "Hello\r\n"
-+              "5\r\n"
++Resuming...
++socket: wrote "5\r\n"
 +              "World\r\n"
 +              "0\r\n"
 +              "\r\n"

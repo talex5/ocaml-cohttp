@@ -1,5 +1,7 @@
 open Eio.Std
 
+module Buf_write = Eio.Buf_write
+
 let log_src = Log.src
 
 type middleware = handler -> handler
@@ -66,22 +68,25 @@ let internal_server_error_response =
 let bad_request_response =
   (Http.Response.make ~status:`Bad_request (), Body.Empty)
 
-let write_response (writer : Writer.t)
+let write_response (writer : Buf_write.t)
     ((response, body) : Http.Response.t * Body.t) =
   let version = Http.Version.to_string response.version in
   let status = Http.Status.to_string response.status in
-  Writer.write_string writer version;
-  Writer.write_string writer " ";
-  Writer.write_string writer status;
-  Writer.write_string writer "\r\n";
+  Buf_write.write_string writer version;
+  Buf_write.write_string writer " ";
+  Buf_write.write_string writer status;
+  Buf_write.write_string writer "\r\n";
   Body.write_headers writer response.headers;
-  Writer.write_string writer "\r\n";
+  Buf_write.write_string writer "\r\n";
   match body with
-  | Fixed s -> Writer.write_string writer s
+  | Fixed s -> Buf_write.write_string writer s
   | Chunked chunk_writer -> Body.write_chunked writer chunk_writer
-  | Custom f ->
-      Writer.wakeup writer;
+  | Custom _f ->
+    failwith "TODO"
+(*
+      Buf_write.wakeup writer;
       f (writer.sink :> Eio.Flow.sink)
+*)
   | Empty -> ()
 
 (* main *)
@@ -96,29 +101,23 @@ let rec handle_request client_addr reader writer flow handler =
           request.resource);
       let response, body = handler (request, reader) in
       write_response writer (response, body);
-      (* A custom response needs to write the main response before calling
-         the custom function for the body. Response.write wakes the writer for
-         us if that is the case. *)
-      if not (is_custom body) then Writer.wakeup writer;
       if Http.Request.is_keep_alive request then
         handle_request client_addr reader writer flow handler
   | (exception End_of_file) | (exception Eio.Net.Connection_reset _) -> ()
   | exception Failure msg ->
       Log.info (fun f -> f "%a: bad request: %s" Eio.Net.Sockaddr.pp client_addr msg);
-      write_response writer bad_request_response;
-      Writer.wakeup writer;
+      write_response writer bad_request_response
   | exception ex ->
       write_response writer internal_server_error_response;
-      Writer.wakeup writer;
       raise ex
 
 type connection_handler = sw:Eio.Switch.t -> <Eio.Flow.two_way; Eio.Flow.close> -> Eio.Net.Sockaddr.stream -> unit
 
-let connection_handler : handler -> connection_handler = fun handler ~sw flow client_addr ->
+let connection_handler : handler -> connection_handler = fun handler ~sw:_ flow client_addr ->
   let reader = Eio.Buf_read.of_flow ~initial_size:0x1000 ~max_size:max_int flow in
-  let writer = Writer.create (flow :> Eio.Flow.sink) in
-  Eio.Fiber.fork ~sw (fun () -> Writer.run writer);
-  handle_request client_addr reader writer flow handler
+  Buf_write.with_flow flow (fun writer ->
+      handle_request client_addr reader writer flow handler
+    )
 
 let log_connection_error ex =
   Log.warn (fun f -> f "Error handling connection: %a" Fmt.exn ex)
