@@ -1,4 +1,4 @@
-let text =
+let text = Cstruct.of_string
   "CHAPTER I. Down the Rabbit-Hole  Alice was beginning to get very tired of \
    sitting by her sister on the bank, and of having nothing to do: once or \
    twice she had peeped into the book her sister was reading, but it had no \
@@ -30,10 +30,23 @@ let text =
 
 open Cohttp_eio
 
+let data_response body =
+  let headers =
+    Http.Header.of_list
+      [
+        ("content-type", "text/plain; charset=UTF-8");
+        ("content-length", string_of_int @@ Cstruct.length body);
+      ]
+  in
+  let response =
+    Http.Response.make ~version:`HTTP_1_1 ~status:`OK ~headers ()
+  in
+  (response, Body.Fixed2 body)
+
 let app (req, _reader) =
   match Http.Request.resource req with
-  | "/" -> Server.text_response text
-  | "/html" -> Server.html_response text
+  | "/" -> data_response text
+  (*   | "/html" -> Server.html_response text *)
   | _ -> Server.not_found_response
 
 let () =

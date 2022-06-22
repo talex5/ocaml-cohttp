@@ -1,6 +1,7 @@
 module Body : sig
   type t =
     | Fixed of string
+    | Fixed2 of Cstruct.t
     | Chunked of chunk_writer
     | Custom of (Eio.Flow.sink -> unit)
     | Empty

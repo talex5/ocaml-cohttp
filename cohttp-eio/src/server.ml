@@ -80,6 +80,7 @@ let write_response (writer : Buf_write.t)
   Buf_write.write_string writer "\r\n";
   match body with
   | Fixed s -> Buf_write.write_string writer s
+  | Fixed2 { Cstruct.buffer; off; len } -> Buf_write.schedule_bigstring writer ~off ~len buffer
   | Chunked chunk_writer -> Body.write_chunked writer chunk_writer
   | Custom _f ->
     failwith "TODO"
