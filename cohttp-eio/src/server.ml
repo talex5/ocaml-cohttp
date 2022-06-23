@@ -92,6 +92,11 @@ let write_response (writer : Buf_write.t)
 
 (* main *)
 
+let i = ref 0
+
+let magic_trace_stop_indicator () = ()
+[@@inline never] [@@local never] [@@specialise never]
+
 let rec handle_request client_addr reader writer flow handler =
   match Reader.http_request reader with
   | request ->
@@ -102,8 +107,12 @@ let rec handle_request client_addr reader writer flow handler =
           request.resource);
       let response, body = handler (request, reader) in
       write_response writer (response, body);
-      if Http.Request.is_keep_alive request then
+      if Http.Request.is_keep_alive request then (
+        Fiber.yield ();
+        incr i;
+        if !i = 10000 then magic_trace_stop_indicator ();
         handle_request client_addr reader writer flow handler
+      )
   | (exception End_of_file) | (exception Eio.Net.Connection_reset _) -> ()
   | exception Failure msg ->
       Log.info (fun f -> f "%a: bad request: %s" Eio.Net.Sockaddr.pp client_addr msg);
