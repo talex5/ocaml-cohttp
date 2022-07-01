@@ -95,8 +95,4 @@ module Server : sig
   (** {1 Basic Handlers} *)
 
   val not_found_handler : handler
-
-  (** {1 Logging} *)
-
-  val log_src : Logs.Src.t
 end

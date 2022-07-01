@@ -1,8 +1,6 @@
 open Eio.Std
 module Write = Eio.Buf_write
 
-let log_src = Log.src
-
 type middleware = handler -> handler
 and handler = request -> response
 and request = Http.Request.t * Eio.Buf_read.t * Eio.Net.Sockaddr.stream
@@ -93,12 +91,13 @@ let rec handle_request client_addr reader writer flow handler =
       if Http.Request.is_keep_alive request then
         handle_request client_addr reader writer flow handler
   | (exception End_of_file) | (exception Eio.Net.Connection_reset _) -> ()
-  | exception Failure msg ->
-      Log.info (fun f ->
-          f "%a: bad request: %s" Eio.Net.Sockaddr.pp client_addr msg);
-      write_response writer bad_request_response
+  | exception (Failure _ as ex) ->
+      write_response writer bad_request_response;
+      Write.flush writer;
+      raise ex
   | exception ex ->
       write_response writer internal_server_error_response;
+      Write.flush writer;
       raise ex
 
 let connection_handler (handler : handler) flow client_addr =
@@ -108,14 +107,15 @@ let connection_handler (handler : handler) flow client_addr =
   Write.with_flow flow (fun writer ->
       handle_request client_addr reader writer flow handler)
 
-let log_connection_error ex =
-  Log.warn (fun f -> f "Error handling connection: %a" Fmt.exn ex)
-
 let run_domain ssock handler =
+  let on_error exn =
+    Printf.fprintf stderr "Error handling connection: %s\n%!"
+      (Printexc.to_string exn)
+  in
   let handler = connection_handler handler in
   Switch.run (fun sw ->
       let rec loop () =
-        Eio.Net.accept_fork ~sw ssock ~on_error:log_connection_error handler;
+        Eio.Net.accept_fork ~sw ssock ~on_error handler;
         loop ()
       in
       loop ())

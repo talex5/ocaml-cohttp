@@ -3,16 +3,11 @@
 ```ocaml
 # #require "eio.mock";;
 # #require "cohttp-eio";;
-# #require "logs.fmt";;
 ```
 
 ```ocaml
 open Eio.Std
 open Cohttp_eio
-
-let () =
-  Logs.Src.set_level Server.log_src (Some Logs.Info);
-  Logs.set_reporter (Logs_fmt.reporter ())
 ```
 
 A mock socket for testing:
