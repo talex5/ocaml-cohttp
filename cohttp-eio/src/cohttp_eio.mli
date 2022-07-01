@@ -83,7 +83,7 @@ module Server : sig
     ?socket_backlog:int ->
     ?domains:int ->
     port:int ->
-    Eio.Stdenv.t ->
+    < domain_mgr : Eio.Domain_manager.t ; net : Eio.Net.t ; .. > ->
     handler ->
     'a
 
