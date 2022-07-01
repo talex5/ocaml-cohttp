@@ -30,8 +30,8 @@ let text =
 
 open Cohttp_eio
 
-let app req =
-  match Request.resource req with
+let app (req, _reader, _client_addr) =
+  match Http.Request.resource req with
   | "/" -> Server.text_response text
   | "/html" -> Server.html_response text
   | _ -> Server.not_found_response

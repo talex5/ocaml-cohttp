@@ -35,8 +35,8 @@ let stream_response () =
   let body = Body.Chunked { body_writer; trailer_writer } in
   Http.Response.make ~version:`HTTP_1_1 ~status:`OK ~headers (), body
 
-let app req =
-  match Request.resource req with
+let app (req, _body, _client_addr) =
+  match Http.Request.resource req with
   | "/" -> Server.text_response "root"
   | "/stream" -> stream_response ()
   | _ -> Server.not_found_response

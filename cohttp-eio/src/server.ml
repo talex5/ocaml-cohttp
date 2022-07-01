@@ -3,14 +3,31 @@ module Write = Eio.Buf_write
 
 let log_src = Log.src
 
-type response = Http.Response.t * Body.t
-type handler = Request.t -> response
 type middleware = handler -> handler
+and handler = request -> response
+and request = Http.Request.t * Eio.Buf_read.t * Eio.Net.Sockaddr.stream
+and response = Http.Response.t * Body.t
 
 let domain_count =
   match Sys.getenv_opt "COHTTP_DOMAINS" with
   | Some d -> int_of_string d
   | None -> 1
+
+(* Request *)
+
+let read_fixed request reader =
+  match Http.Request.meth request with
+  | `POST | `PUT | `PATCH -> Body.read_fixed reader request.headers
+  | _ ->
+      let err =
+        Printf.sprintf
+          "Request with HTTP method '%s' doesn't support request body"
+          (Http.Method.to_string request.meth)
+      in
+      raise @@ Invalid_argument err
+
+let read_chunked request reader f =
+  Body.read_chunked reader (Http.Request.headers request) f
 
 (* Responses *)
 
@@ -71,9 +88,7 @@ let write_response (writer : Write.t)
 let rec handle_request client_addr reader writer flow handler =
   match Reader.http_request reader with
   | request ->
-      let response, body =
-        handler (Request.of_http request ~reader ~client_addr)
-      in
+      let response, body = handler (request, reader, client_addr) in
       write_response writer (response, body);
       if Http.Request.is_keep_alive request then
         handle_request client_addr reader writer flow handler
