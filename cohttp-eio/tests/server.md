@@ -107,3 +107,26 @@ Streaming a response:
 +              "\r\n"
 - : unit = ()
 ```
+
+When reporting an exception the server must include the content-length header:
+
+```ocaml
+# run @@ fun () ->
+  Eio_mock.Flow.on_read socket [
+    `Return "GET /no-such-resource HTTP/1.1\r\n\r\n";
+    `Return "GET / HTTP/1.1\r\n\r\n";
+  ];;
++socket: read "GET /no-such-resource HTTP/1.1\r\n"
++             "\r\n"
++socket: read "GET / HTTP/1.1\r\n"
++             "\r\n"
++socket: wrote "HTTP/1.1 404 Not Found\r\n"
++              "content-length: 0\r\n"
++              "\r\n"
++              "HTTP/1.1 200 OK\r\n"
++              "content-length: 4\r\n"
++              "content-type: text/plain; charset=UTF-8\r\n"
++              "\r\n"
++              "root"
+- : unit = ()
+```
