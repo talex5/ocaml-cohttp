@@ -20,9 +20,7 @@ let https ~authenticator =
 let () =
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  let client =
-    Client.make ~https:(Some (https ~authenticator:null_auth)) env#net
-  in
+  let client = Client.make ~https:(https ~authenticator:null_auth) env#net in
   Eio.Switch.run @@ fun sw ->
   let resp, body =
     Client.get ~sw client (Uri.of_string "https://example.com")

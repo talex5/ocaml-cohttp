@@ -81,7 +81,7 @@ let tcp_address ~net uri =
   | ip :: _ -> ip
   | [] -> failwith "failed to resolve hostname"
 
-let make ~https net : t =
+let make ?https net : t =
   let net = (net :> [ `Generic ] Eio.Net.ty r) in
   let https =
     (https

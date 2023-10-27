@@ -9,9 +9,8 @@ include
      and type body = Body.t
 
 val make :
-  https:
-    (Uri.t -> [ `Generic ] Eio.Net.stream_socket_ty r -> _ Eio.Flow.two_way)
-    option ->
+  ?https:
+    (Uri.t -> [ `Generic ] Eio.Net.stream_socket_ty r -> _ Eio.Flow.two_way) ->
   _ Eio.Net.t ->
   t
 (** [make ~https net] is a convenience wrapper around {!make_generic} that uses
